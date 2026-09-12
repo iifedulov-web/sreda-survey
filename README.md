@@ -115,3 +115,21 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
+## Local quality gate
+
+```bash
+npm install
+npm run verify
+```
+
+`verify` runs:
+- `npm run lint`
+- `npm run test` (Vitest unit tests)
+- `npm run test:e2e` (Jest E2E)
+
+### Git hooks
+Project uses local hooks from `.githooks`:
+
+```bash
+git config core.hooksPath .githooks
+```

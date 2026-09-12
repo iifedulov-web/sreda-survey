@@ -14,15 +14,15 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "oxlint src/ test/",
-    "test": "jest --config ./jest.config.ts",
-    "test:watch": "vitest --config ./vitest.config.ts",
+    "test": "vitest run --config ./vitest.config.mts",
+    "test:watch": "vitest --config ./vitest.config.mts",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
     "test:e2e:cov": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --coverage",
     "postinstall": "prisma skills sync || exit 0",
     "contract:emit": "prisma contract emit",
-    "verify": "npm run lint && npm run test:e2e"
+    "verify": "npm run lint && npm run test && npm run test:e2e"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -63,6 +63,7 @@
     "@types/node": "^24.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.0",
     "jest": "^30.0.0",
     "oxlint": "^1.58.0",
     "prettier": "^3.4.2",
@@ -73,6 +74,9 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "unplugin-swc": "^1.6.0",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
   }
 }
