@@ -1,10 +1,10 @@
 #!/bin/sh
-echo "Running pre-push checks..."
-npm run test:e2e
+echo "Running pre-push checks (verify)..."
+npm run verify
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
-  echo "? Push blocked: e2e tests failed."
+  echo "Push blocked: verify failed."
   exit 1
 fi
-echo "? E2E passed. Proceeding with push."
+echo "Verify passed. Proceeding with push."
 exit 0
