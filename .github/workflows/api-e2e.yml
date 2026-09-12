@@ -24,8 +24,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: apps/api/package-lock.json
-
       - name: Install deps
         run: npm ci
 
@@ -58,3 +56,4 @@ jobs:
           name: e2e-coverage-summary
           path: apps/api/coverage/e2e/coverage-summary.json
           if-no-files-found: warn
+
