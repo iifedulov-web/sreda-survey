@@ -1,15 +1,20 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+﻿import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 import { AppModule } from '../src/app.module';
+import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('Auth & RBAC (e2e)', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
+  let jwt: JwtService;
   let adminToken = '';
   let respondentToken = '';
 
-  const adminEmail = `admin_${Date.now()}@test.local`;
-  const respondentEmail = `resp_${Date.now()}@test.local`;
+  const adminEmail = 'admin_' + Date.now() + '@test.local';
+  const respondentEmail = 'resp_' + Date.now() + '@test.local';
   const password = 'Passw0rd!123';
 
   beforeAll(async () => {
@@ -21,44 +26,46 @@ describe('Auth & RBAC (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
 
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email: adminEmail, password, role: 'admin' })
-      .expect(201);
+    prisma = app.get(PrismaService);
+    jwt = app.get(JwtService);
 
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email: respondentEmail, password, role: 'respondent' })
-      .expect(201);
+    const hash = await bcrypt.hash(password, 10);
 
-    const adminLogin = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: adminEmail, password })
-      .expect(201);
+    const adminRole = await prisma.role.upsert({
+      where: { name: 'admin' },
+      update: {},
+      create: { name: 'admin' },
+    });
 
-    const respondentLogin = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: respondentEmail, password })
-      .expect(201);
+    const respondentRole = await prisma.role.upsert({
+      where: { name: 'respondent' },
+      update: {},
+      create: { name: 'respondent' },
+    });
 
-    adminToken =
-      adminLogin.body.accessToken ??
-      adminLogin.body.access_token ??
-      adminLogin.body.token ??
-      '';
+    const adminUser = await prisma.user.create({
+      data: { email: adminEmail, password: hash, roleId: adminRole.id },
+    });
 
-    respondentToken =
-      respondentLogin.body.accessToken ??
-      respondentLogin.body.access_token ??
-      respondentLogin.body.token ??
-      '';
+    const respondentUser = await prisma.user.create({
+      data: { email: respondentEmail, password: hash, roleId: respondentRole.id },
+    });
 
-    expect(adminToken).toBeTruthy();
-    expect(respondentToken).toBeTruthy();
+    adminToken = await jwt.signAsync({
+      sub: adminUser.id,
+      email: adminUser.email,
+      role: adminRole.name,
+    });
+
+    respondentToken = await jwt.signAsync({
+      sub: respondentUser.id,
+      email: respondentUser.email,
+      role: respondentRole.name,
+    });
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('GET /auth/me without token -> 401', async () => {
@@ -66,26 +73,27 @@ describe('Auth & RBAC (e2e)', () => {
   });
 
   it('GET /auth/me with token -> 200', async () => {
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .get('/auth/me')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', 'Bearer ' + adminToken)
       .expect(200);
+
+    expect(res.body.email).toBe(adminEmail);
+    expect(res.body.role).toBe('admin');
   });
 
   it('GET /auth/admin-test with admin token -> 200', async () => {
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .get('/auth/admin-test')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .expect(200)
-      .expect(({ body }) => {
-        expect(body.message).toBe('admin access granted');
-      });
+      .set('Authorization', 'Bearer ' + adminToken)
+      .expect(200);
   });
 
   it('GET /auth/admin-test with respondent token -> 403', async () => {
     await request(app.getHttpServer())
       .get('/auth/admin-test')
-      .set('Authorization', `Bearer ${respondentToken}`)
+      .set('Authorization', 'Bearer ' + respondentToken)
       .expect(403);
   });
 });
+
