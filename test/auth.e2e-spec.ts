@@ -1,7 +1,8 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+﻿import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+
 
 describe('Auth & RBAC (e2e)', () => {
   let app: INestApplication;
@@ -89,3 +90,5 @@ describe('Auth & RBAC (e2e)', () => {
       .expect(403);
   });
 });
+
+
