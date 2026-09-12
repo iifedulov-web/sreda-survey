@@ -21,15 +21,27 @@ describe('Auth & RBAC (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
 
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email: adminEmail, password, role: 'admin' })
-      .expect(201);
+    const hash = await bcrypt.hash(password, 10);
 
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email: respondentEmail, password, role: 'respondent' })
-      .expect(201);
+    const adminRole = await prisma.role.upsert({
+      where: { name: 'admin' },
+      update: {},
+      create: { name: 'admin' },
+    });
+
+    const respondentRole = await prisma.role.upsert({
+      where: { name: 'respondent' },
+      update: {},
+      create: { name: 'respondent' },
+    });
+
+    await prisma.user.create({
+      data: { email: adminEmail, passwordHash: hash, roleId: adminRole.id },
+    });
+
+    await prisma.user.create({
+      data: { email: respondentEmail, passwordHash: hash, roleId: respondentRole.id },
+    });
 
     const adminLogin = await request(app.getHttpServer())
       .post('/auth/login')
@@ -89,3 +101,4 @@ describe('Auth & RBAC (e2e)', () => {
       .expect(403);
   });
 });
+

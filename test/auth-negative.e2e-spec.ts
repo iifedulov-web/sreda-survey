@@ -24,10 +24,17 @@ describe('Auth negative (e2e)', () => {
   });
 
   it('POST /auth/login with wrong password -> 401', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({ email, password, role: 'respondent' })
-      .expect(201);
+    const hash = await bcrypt.hash(password, 10);
+
+    const respondentRole = await prisma.role.upsert({
+      where: { name: 'respondent' },
+      update: {},
+      create: { name: 'respondent' },
+    });
+
+    await prisma.user.create({
+      data: { email, passwordHash: hash, roleId: respondentRole.id },
+    });
 
     await request(app.getHttpServer())
       .post('/auth/login')
@@ -42,3 +49,4 @@ describe('Auth negative (e2e)', () => {
       .expect(401);
   });
 });
+
