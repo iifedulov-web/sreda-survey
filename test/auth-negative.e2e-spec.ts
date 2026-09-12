@@ -1,8 +1,7 @@
-﻿import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { createTestUser } from './helpers/create-test-user';
 
 
 
