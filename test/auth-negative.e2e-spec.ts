@@ -44,7 +44,3 @@ describe('Auth negative (e2e)', () => {
       .expect(401);
   });
 });
-
-
-
-
