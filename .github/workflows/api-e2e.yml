@@ -105,7 +105,7 @@ jobs:
         run: |
           FILE="coverage/e2e/coverage-summary.json"
           if [ ! -f "$FILE" ]; then
-            echo "body=⚠️ coverage-summary.json not found" >> $GITHUB_OUTPUT
+            echo "body=вљ пёЏ coverage-summary.json not found" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -115,7 +115,7 @@ jobs:
           STMTS=$(node -e "const s=require('./$FILE').total; console.log(s.statements.pct)")
 
           BODY=$(cat <<EOF
-          ## 🧪 API E2E Coverage
+          ## рџ§Є API E2E Coverage
           - **Lines:** ${LINES}%
           - **Functions:** ${FUNCS}%
           - **Branches:** ${BRANCH}%
