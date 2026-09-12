@@ -1,0 +1,43 @@
+{
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "@swc/jest",
+      {
+        "sourceMaps": true,
+        "module": { "type": "es6" },
+        "jsc": {
+          "target": "es2022",
+          "parser": { "syntax": "typescript", "decorators": true },
+          "transform": { "legacyDecorator": true, "decoratorMetadata": true }
+        }
+      }
+    ]
+  },
+  "coverageProvider": "v8",
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/main.ts",
+    "!src/**/*.module.ts",
+    "!src/**/*.spec.ts",
+    "!src/app.controller.ts",
+    "!src/app.service.ts",
+    "!src/prisma/seed.ts",
+    "!src/**/dto/**/*.ts",
+    "!src/**/entities/**/*.ts",
+    "!src/auth/public.decorator.ts"
+  ],
+  "coverageDirectory": "<rootDir>/coverage/e2e",
+  "coverageThreshold": {
+    "global": {
+      "branches": 55,
+      "functions": 65,
+      "lines": 70,
+      "statements": 70
+    }
+  }
+}
