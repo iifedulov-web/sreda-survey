@@ -4,15 +4,40 @@ on:
   push:
     branches: [master, main]
     paths:
-      - '**'
+      - 'src/**'
+      - 'test/**'
+      - 'prisma/**'
+      - '.github/workflows/api-e2e.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'jest*.json'
+      - 'jest*.js'
+      - 'jest*.ts'
+      - 'nest-cli.json'
   pull_request:
     branches: [master, main]
     paths:
-      - '**'
+      - 'src/**'
+      - 'test/**'
+      - 'prisma/**'
+      - '.github/workflows/api-e2e.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'jest*.json'
+      - 'jest*.js'
+      - 'jest*.ts'
+      - 'nest-cli.json'
+
+concurrency:
+  group: api-e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: .
@@ -38,6 +63,7 @@ jobs:
         with:
           name: e2e-coverage-html
           path: coverage/e2e/lcov-report
+          if-no-files-found: warn
 
       - name: Upload coverage lcov
         if: always()
@@ -45,6 +71,7 @@ jobs:
         with:
           name: e2e-coverage-lcov
           path: coverage/e2e/lcov.info
+          if-no-files-found: warn
 
       - name: Upload coverage summary
         if: always()
@@ -52,18 +79,17 @@ jobs:
         with:
           name: e2e-coverage-summary
           path: coverage/e2e/coverage-summary.json
+          if-no-files-found: warn
 
   coverage-comment:
     if: github.event_name == 'pull_request'
     needs: e2e
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       pull-requests: write
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Download coverage summary artifact
         uses: actions/download-artifact@v4
         with:
