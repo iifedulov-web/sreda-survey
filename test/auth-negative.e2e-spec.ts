@@ -10,7 +10,6 @@ describe('Auth negative (e2e)', () => {
   const password = 'Passw0rd!123';
 
   beforeAll(async () => {
-    const bcrypt = require('bcrypt');
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -50,5 +49,6 @@ describe('Auth negative (e2e)', () => {
       .expect(401);
   });
 });
+
 
 
