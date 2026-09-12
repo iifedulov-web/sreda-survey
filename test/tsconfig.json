@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "types": ["jest", "node"],
+    "rootDir": "../",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["./**/*.ts", "../src/**/*.ts"]
+}
