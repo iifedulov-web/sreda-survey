@@ -11,10 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sreda_test?schema=public
-    defaults:
-      run:
-        working-directory: apps/api
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-coverage-html
-          path: apps/api/coverage/e2e/lcov-report
+          path: coverage/e2e/lcov-report
           if-no-files-found: warn
 
       - name: Upload coverage lcov
@@ -46,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-coverage-lcov
-          path: apps/api/coverage/e2e/lcov.info
+          path: coverage/e2e/lcov.info
           if-no-files-found: warn
 
       - name: Upload coverage summary
@@ -54,6 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-coverage-summary
-          path: apps/api/coverage/e2e/coverage-summary.json
+          path: coverage/e2e/coverage-summary.json
           if-no-files-found: warn
+
 
