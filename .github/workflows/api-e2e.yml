@@ -1,4 +1,4 @@
-﻿name: API E2E
+name: API E2E
 
 on:
   push:
@@ -53,6 +53,9 @@ jobs:
 
       - name: Install deps
         run: npm ci
+      - name: Generate Prisma Client
+        working-directory: apps/api
+        run: npx prisma generate
 
       - name: Run E2E with coverage
         run: npm run test:e2e -- --coverage
