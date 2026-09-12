@@ -33,3 +33,19 @@ jobs:
 
       - name: Run E2E with coverage
         run: npm run test:e2e:cov
+
+      - name: Upload coverage html
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-e2e-coverage-html
+          path: apps/api/coverage/e2e/lcov-report
+          if-no-files-found: warn
+
+      - name: Upload coverage lcov
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-e2e-coverage-lcov
+          path: apps/api/coverage/e2e/lcov.info
+          if-no-files-found: warn
