@@ -2,6 +2,8 @@
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { createTestUser } from './helpers/create-test-user';
+
 
 
 describe('Auth & RBAC (e2e)', () => {
@@ -90,5 +92,7 @@ describe('Auth & RBAC (e2e)', () => {
       .expect(403);
   });
 });
+
+
 
 

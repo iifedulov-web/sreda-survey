@@ -2,6 +2,8 @@
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { createTestUser } from './helpers/create-test-user';
+
 
 
 describe('Auth negative (e2e)', () => {
@@ -43,5 +45,7 @@ describe('Auth negative (e2e)', () => {
       .expect(401);
   });
 });
+
+
 
 
