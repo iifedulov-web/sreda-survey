@@ -11,6 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sreda_test?schema=public
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sreda_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d sreda_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,11 +36,18 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
       - name: Install deps
         run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Seed DB
+        run: npm run db:seed --if-present
 
       - name: Run E2E with coverage
         run: npm run test:e2e -- --coverage
@@ -52,5 +75,3 @@ jobs:
           name: e2e-coverage-summary
           path: coverage/e2e/coverage-summary.json
           if-no-files-found: warn
-
-
