@@ -114,8 +114,8 @@ export class SurveysService {
     });
   }
   async getStats(surveyId: string) {
-    return this.getSurveyStats(surveyId, {} as GetSurveyStatsQueryDto);
-  },
+    const survey = await this.prisma.survey.findUnique({
+      where: { id: surveyId },
       include: {
         questions: {
           include: {
@@ -198,8 +198,6 @@ export class SurveysService {
     };
   }
 }
-
-
 
 
 

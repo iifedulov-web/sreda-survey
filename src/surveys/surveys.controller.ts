@@ -1,15 +1,13 @@
 ﻿import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
+  ApiHeader,
+  ApiOperation, ApiOkResponse, ApiNotFoundResponse, ApiParam,
   ApiQuery,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AdminGuard } from '../common/guards/admin.guard';
 import { CreateSurveyDto } from './dto/create-survey.dto';
 import { SubmitResponseDto } from './dto/submit-response.dto';
 import { SurveyStatsDto } from './dto/survey-stats.dto';
@@ -22,55 +20,51 @@ export class SurveysController {
   constructor(private readonly surveysService: SurveysService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create survey' })
-  @ApiCreatedResponse({ description: 'Survey created' })
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Create survey (admin only)' })
+  @ApiHeader({ name: 'x-role', required: true, description: 'Must be admin' })
+  @ApiBody({ type: CreateSurveyDto })
+  @ApiResponse({ status: 201, description: 'Survey created' })
   create(@Body() dto: CreateSurveyDto) {
     return this.surveysService.create(dto);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get survey by id' })
-  @ApiParam({ name: 'id', description: 'Survey id' })
-  @ApiOkResponse({ description: 'Survey found' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200, description: 'Survey returned' })
   getById(@Param('id') id: string) {
     return this.surveysService.getById(id);
   }
 
   @Post(':id/responses')
   @ApiOperation({ summary: 'Submit survey response' })
-  @ApiParam({ name: 'id', description: 'Survey id' })
+  @ApiParam({ name: 'id' })
   @ApiBody({ type: SubmitResponseDto })
-  @ApiCreatedResponse({ description: 'Response submitted' })
-  submitResponse(@Param('id') id: string, @Body() dto: SubmitResponseDto) {
+  @ApiResponse({ status: 201, description: 'Response submitted' })
+  submit(@Param('id') id: string, @Body() dto: SubmitResponseDto) {
     return this.surveysService.submitResponse(id, dto);
   }
 
   @Patch(':id/deactivate')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Deactivate survey' })
-  @ApiParam({ name: 'id', description: 'Survey id' })
-  @ApiOkResponse({ description: 'Survey deactivated' })
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Deactivate survey (admin only)' })
+  @ApiHeader({ name: 'x-role', required: true, description: 'Must be admin' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200, description: 'Survey deactivated' })
   deactivate(@Param('id') id: string) {
     return this.surveysService.deactivate(id);
   }
-
-  @Get(':id/stats')
-  @ApiOperation({ summary: 'Get survey statistics' })
-  @ApiParam({ name: 'id', description: 'Survey id' })
+  @ApiOperation({ summary: 'Get survey analytics/statistics' })
+  @ApiParam({ name: 'id', description: 'Survey ID' })
   @ApiOkResponse({ type: SurveyStatsDto })
-  @ApiQuery({ name: 'textLimit', required: false, type: Number })
-  @ApiQuery({ name: 'textOffset', required: false, type: Number })
-  @ApiQuery({ name: 'textSearch', required: false, type: String })
-  @ApiQuery({ name: 'from', required: false, type: String })
-  @ApiQuery({ name: 'to', required: false, type: String })
-  getSurveyStats(
-    @Param('id') id: string,
-    @Query() query: GetSurveyStatsQueryDto,
-  ): Promise<SurveyStatsDto> {
-    return this.surveysService.getSurveyStats(id, query);
+  @ApiNotFoundResponse({ description: 'Survey not found' })
+  @Get(':id/stats')
+  getSurveyStats(@Param('id') id: string) {
+    return this.surveysService.getStats(id);
   }
 }
+
+
+
 
