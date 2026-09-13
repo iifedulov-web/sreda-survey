@@ -229,7 +229,7 @@ describe('GET /surveys/:id/stats', () => {
       .send({
         userId: '11111111-1111-1111-1111-111111111111',
         answers: [
-          { questionId: singleQuestionId, selectedOptionId: redOptionId },
+          { questionId: singleQuestionId, optionId: redOptionId },
           { questionId: textQuestionId, textValue: 'Because it is warm' },
         ],
       })
@@ -240,14 +240,14 @@ describe('GET /surveys/:id/stats', () => {
       .send({
         userId: '22222222-2222-2222-2222-222222222222',
         answers: [
-          { questionId: singleQuestionId, selectedOptionId: blueOptionId },
+          { questionId: singleQuestionId, optionId: blueOptionId },
           { questionId: textQuestionId, textValue: 'Because it is calm' },
         ],
       })
       .expect(201);
 
     const statsRes = await request(app.getHttpServer())
-      .get(/surveys//stats)
+      .get(`/surveys/${surveyId}/stats`)
       .expect(200);
 
     expect(statsRes.body.surveyId).toBe(surveyId);
@@ -269,6 +269,7 @@ describe('GET /surveys/:id/stats', () => {
   });
 });
 });
+
 
 
 
