@@ -1,8 +1,9 @@
-﻿import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+﻿import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBody,
   ApiHeader,
   ApiOperation, ApiOkResponse, ApiNotFoundResponse, ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -10,6 +11,7 @@ import { AdminGuard } from '../common/guards/admin.guard';
 import { CreateSurveyDto } from './dto/create-survey.dto';
 import { SubmitResponseDto } from './dto/submit-response.dto';
 import { SurveyStatsDto } from './dto/survey-stats.dto';
+import { GetSurveyStatsQueryDto } from './dto/get-survey-stats-query.dto';
 import { SurveysService } from './surveys.service';
 
 @ApiTags('surveys')
@@ -62,5 +64,7 @@ export class SurveysController {
     return this.surveysService.getStats(id);
   }
 }
+
+
 
 
