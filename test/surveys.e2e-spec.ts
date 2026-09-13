@@ -225,7 +225,7 @@ describe('GET /surveys/:id/stats', () => {
     const blueOptionId = createRes.body.questions[0].options[1].id;
 
     await request(app.getHttpServer())
-      .post(/surveys//responses)
+      .post(`/surveys/${surveyId}/responses`)
       .send({
         userId: 'user-stats-1',
         answers: [
@@ -236,7 +236,7 @@ describe('GET /surveys/:id/stats', () => {
       .expect(201);
 
     await request(app.getHttpServer())
-      .post(/surveys//responses)
+      .post(`/surveys/${surveyId}/responses`)
       .send({
         userId: 'user-stats-2',
         answers: [
