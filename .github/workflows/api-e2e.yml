@@ -84,7 +84,7 @@ jobs:
       - name: Seed roles
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
-        run: npx prisma db seed
+        run: npx tsx prisma/seed.ts
 
       - name: Run E2E with coverage
         run: npm run test:e2e -- --coverage
@@ -165,5 +165,6 @@ jobs:
         with:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
+
 
 
