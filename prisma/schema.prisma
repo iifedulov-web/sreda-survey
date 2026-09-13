@@ -20,3 +20,74 @@ model User {
   role      Role     @relation(fields: [roleId], references: [id])
   createdAt DateTime @default(now())
 }
+
+enum QuestionType {
+  SINGLE_CHOICE
+  TEXT
+}
+
+model Survey {
+  id        String   @id @default(cuid())
+  title     String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions Question[]
+  responses Response[]
+}
+
+model Question {
+  id       String       @id @default(cuid())
+  surveyId String
+  text     String
+  type     QuestionType
+  order    Int          @default(0)
+
+  survey  Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  options Option[]
+  answers Answer[]
+
+  @@index([surveyId])
+}
+
+model Option {
+  id         String @id @default(cuid())
+  questionId String
+  text       String
+  order      Int    @default(0)
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  Answer[]
+
+  @@index([questionId])
+}
+
+model Response {
+  id        String   @id @default(cuid())
+  surveyId  String
+  userId    String?
+  createdAt DateTime @default(now())
+
+  survey  Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers Answer[]
+
+  @@index([surveyId])
+  @@index([userId])
+}
+
+model Answer {
+  id         String  @id @default(cuid())
+  responseId String
+  questionId String
+  optionId   String?
+  textValue  String?
+
+  response Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  option   Option?  @relation(fields: [optionId], references: [id], onDelete: Restrict)
+
+  @@index([responseId])
+  @@index([questionId])
+  @@index([optionId])
+}
