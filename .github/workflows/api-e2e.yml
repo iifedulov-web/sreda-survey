@@ -76,6 +76,11 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
         run: npx prisma generate
 
+      - name: Apply Prisma schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
+        run: npx prisma db push
+
       - name: Run E2E with coverage
         run: npm run test:e2e -- --coverage
 
@@ -156,6 +161,4 @@ jobs:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
 
-      - name: Apply Prisma schema
-        run: npx prisma db push
 
