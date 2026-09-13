@@ -60,10 +60,10 @@ jobs:
         working-directory: .
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -91,7 +91,7 @@ jobs:
 
       - name: Upload coverage HTML
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-coverage-html
           path: coverage/e2e/lcov-report
@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload coverage lcov
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-coverage-lcov
           path: coverage/e2e/lcov.info
@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload coverage summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-coverage-summary
           path: coverage/e2e/coverage-summary.json
@@ -123,7 +123,7 @@ jobs:
       contents: read
     steps:
       - name: Download coverage summary artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: e2e-coverage-summary
           path: coverage/e2e
@@ -161,10 +161,11 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - name: Comment PR
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
+
 
 
 
