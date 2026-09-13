@@ -81,6 +81,11 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
         run: npx prisma db push
 
+      - name: Seed roles
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
+        run: npx prisma db seed
+
       - name: Run E2E with coverage
         run: npm run test:e2e -- --coverage
 
