@@ -227,7 +227,7 @@ describe('GET /surveys/:id/stats', () => {
     await request(app.getHttpServer())
       .post(`/surveys/${surveyId}/responses`)
       .send({
-        userId: 'user-stats-1',
+        userId: '11111111-1111-1111-1111-111111111111',
         answers: [
           { questionId: singleQuestionId, selectedOptionId: redOptionId },
           { questionId: textQuestionId, textValue: 'Because it is warm' },
@@ -238,7 +238,7 @@ describe('GET /surveys/:id/stats', () => {
     await request(app.getHttpServer())
       .post(`/surveys/${surveyId}/responses`)
       .send({
-        userId: 'user-stats-2',
+        userId: '22222222-2222-2222-2222-222222222222',
         answers: [
           { questionId: singleQuestionId, selectedOptionId: blueOptionId },
           { questionId: textQuestionId, textValue: 'Because it is calm' },
@@ -269,6 +269,7 @@ describe('GET /surveys/:id/stats', () => {
   });
 });
 });
+
 
 
 
