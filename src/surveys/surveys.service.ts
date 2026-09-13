@@ -123,7 +123,7 @@ export class SurveysService {
             answers: {
               include: {
                 response: {
-                  select: { submittedAt: true },
+                  select: { createdAt: true },
                 },
               },
             },
@@ -178,7 +178,7 @@ export class SurveysService {
         .map((a) => ({
           answerId: a.id,
           text: a.textValue!,
-          submittedAt: a.response.submittedAt,
+          submittedAt: a.response.createdAt,
         }));
 
       return {
@@ -198,4 +198,5 @@ export class SurveysService {
     };
   }
 }
+
 
