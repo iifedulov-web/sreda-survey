@@ -53,9 +53,10 @@ jobs:
 
       - name: Install deps
         run: npm ci
+
       - name: Generate Prisma Client
-  env:
-    DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
         run: npx prisma generate
 
       - name: Run E2E with coverage
@@ -137,4 +138,3 @@ jobs:
         with:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
-
