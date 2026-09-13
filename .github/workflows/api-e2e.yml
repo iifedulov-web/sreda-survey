@@ -131,9 +131,12 @@ jobs:
             echo "body<<EOF"
             echo "$BODY"
             echo "EOF"
-          } >> $GITHUB_OUTPUT      - name: Comment PR
+          } >> $GITHUB_OUTPUT
+
+      - name: Comment PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
+
 
