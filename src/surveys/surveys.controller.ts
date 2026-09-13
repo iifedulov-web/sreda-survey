@@ -3,7 +3,6 @@ import {
   ApiBody,
   ApiHeader,
   ApiOperation, ApiOkResponse, ApiNotFoundResponse, ApiParam,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -63,4 +62,5 @@ export class SurveysController {
     return this.surveysService.getStats(id);
   }
 }
+
 
