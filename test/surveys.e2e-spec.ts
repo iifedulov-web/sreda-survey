@@ -197,4 +197,82 @@ describe('Surveys (e2e)', () => {
       .send(payload)
       .expect(404);
   });
+describe('GET /surveys/:id/stats', () => {
+  it('should return stats for single_choice and text questions', async () => {
+    const createRes = await request(app.getHttpServer())
+      .post('/surveys')
+      .set('x-role', 'admin')
+      .send({
+        title: 'Stats survey',
+        questions: [
+          {
+            text: 'Favorite color?',
+            type: 'SINGLE_CHOICE',
+            options: [{ text: 'Red' }, { text: 'Blue' }],
+          },
+          {
+            text: 'Why?',
+            type: 'TEXT',
+          },
+        ],
+      })
+      .expect(201);
+
+    const surveyId = createRes.body.id;
+    const singleQuestionId = createRes.body.questions[0].id;
+    const textQuestionId = createRes.body.questions[1].id;
+    const redOptionId = createRes.body.questions[0].options[0].id;
+    const blueOptionId = createRes.body.questions[0].options[1].id;
+
+    await request(app.getHttpServer())
+      .post(`/surveys/${surveyId}/responses`)
+      .send({
+        userId: '11111111-1111-1111-1111-111111111111',
+        answers: [
+          { questionId: singleQuestionId, optionId: redOptionId },
+          { questionId: textQuestionId, textValue: 'Because it is warm' },
+        ],
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(`/surveys/${surveyId}/responses`)
+      .send({
+        userId: '22222222-2222-2222-2222-222222222222',
+        answers: [
+          { questionId: singleQuestionId, optionId: blueOptionId },
+          { questionId: textQuestionId, textValue: 'Because it is calm' },
+        ],
+      })
+      .expect(201);
+
+    const statsRes = await request(app.getHttpServer())
+      .get(`/surveys/${surveyId}/stats`)
+      .expect(200);
+
+    expect(statsRes.body.surveyId).toBe(surveyId);
+    expect(statsRes.body.totalResponses).toBe(2);
+
+    const single = statsRes.body.questions.find((q: any) => q.type === 'SINGLE_CHOICE');
+    expect(single.totalAnswers).toBe(2);
+    expect(single.options.length).toBe(2);
+
+    const textQ = statsRes.body.questions.find((q: any) => q.type === 'TEXT');
+    expect(textQ.totalAnswers).toBe(2);
+    expect(textQ.textAnswers.length).toBe(2);
+  });
+
+  it('should return 404 for unknown survey', async () => {
+    await request(app.getHttpServer())
+      .get('/surveys/00000000-0000-0000-0000-000000000000/stats')
+      .expect(404);
+  });
 });
+});
+
+
+
+
+
+
+
