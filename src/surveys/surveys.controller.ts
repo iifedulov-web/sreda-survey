@@ -2,7 +2,7 @@
 import {
   ApiBody,
   ApiHeader,
-  ApiOperation,
+  ApiOperation, ApiOkResponse, ApiNotFoundResponse, ApiParam,
   ApiParam,
   ApiResponse,
   ApiTags,
@@ -10,6 +10,7 @@ import {
 import { AdminGuard } from '../common/guards/admin.guard';
 import { CreateSurveyDto } from './dto/create-survey.dto';
 import { SubmitResponseDto } from './dto/submit-response.dto';
+import { SurveyStatsDto } from './dto/survey-stats.dto';
 import { SurveysService } from './surveys.service';
 
 @ApiTags('surveys')
@@ -53,4 +54,13 @@ export class SurveysController {
   deactivate(@Param('id') id: string) {
     return this.surveysService.deactivate(id);
   }
+  @ApiOperation({ summary: 'Get survey analytics/statistics' })
+  @ApiParam({ name: 'id', description: 'Survey ID' })
+  @ApiOkResponse({ type: SurveyStatsDto })
+  @ApiNotFoundResponse({ description: 'Survey not found' })
+  @Get(':id/stats')
+  getSurveyStats(@Param('id') id: string) {
+    return this.surveysService.getStats(id);
+  }
 }
+

@@ -113,4 +113,89 @@ export class SurveysService {
       data: { isActive: false },
     });
   }
+  async getStats(surveyId: string) {
+    const survey = await this.prisma.survey.findUnique({
+      where: { id: surveyId },
+      include: {
+        questions: {
+          include: {
+            options: true,
+            answers: {
+              include: {
+                response: {
+                  select: { submittedAt: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          select: { id: true },
+        },
+      },
+    });
+
+    if (!survey || !survey.isActive) {
+      throw new NotFoundException('Survey not found');
+    }
+
+    const totalResponses = survey.responses.length;
+
+    const questions = survey.questions.map((q) => {
+      if (q.type === QuestionType.SINGLE_CHOICE) {
+        const optionCounts = new Map<string, number>();
+        for (const opt of q.options) optionCounts.set(opt.id, 0);
+
+        for (const a of q.answers) {
+          if (a.selectedOptionId && optionCounts.has(a.selectedOptionId)) {
+            optionCounts.set(a.selectedOptionId, (optionCounts.get(a.selectedOptionId) ?? 0) + 1);
+          }
+        }
+
+        const totalAnswers = q.answers.length;
+        const options = q.options.map((opt) => {
+          const count = optionCounts.get(opt.id) ?? 0;
+          const percentage = totalAnswers === 0 ? 0 : Number(((count / totalAnswers) * 100).toFixed(2));
+          return {
+            optionId: opt.id,
+            text: opt.text,
+            count,
+            percentage,
+          };
+        });
+
+        return {
+          questionId: q.id,
+          text: q.text,
+          type: q.type,
+          totalAnswers,
+          options,
+        };
+      }
+
+      const textAnswers = q.answers
+        .filter((a) => !!a.textValue)
+        .map((a) => ({
+          answerId: a.id,
+          text: a.textValue!,
+          submittedAt: a.response.submittedAt,
+        }));
+
+      return {
+        questionId: q.id,
+        text: q.text,
+        type: q.type,
+        totalAnswers: textAnswers.length,
+        textAnswers,
+      };
+    });
+
+    return {
+      surveyId: survey.id,
+      title: survey.title,
+      totalResponses,
+      questions,
+    };
+  }
 }
+
