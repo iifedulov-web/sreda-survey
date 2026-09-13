@@ -1,4 +1,4 @@
-name: API E2E
+﻿name: API E2E
 
 on:
   push:
@@ -37,32 +37,61 @@ concurrency:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d test_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
     timeout-minutes: 20
     defaults:
       run:
         working-directory: .
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
 
       - name: Install deps
         run: npm ci
+
       - name: Generate Prisma Client
-        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
         run: npx prisma generate
+
+      - name: Apply Prisma schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
+        run: npx prisma db push
+
+      - name: Seed roles
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?schema=public
+        run: npx tsx prisma/seed.ts
 
       - name: Run E2E with coverage
         run: npm run test:e2e -- --coverage
 
       - name: Upload coverage HTML
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-coverage-html
           path: coverage/e2e/lcov-report
@@ -70,7 +99,7 @@ jobs:
 
       - name: Upload coverage lcov
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-coverage-lcov
           path: coverage/e2e/lcov.info
@@ -78,7 +107,7 @@ jobs:
 
       - name: Upload coverage summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-coverage-summary
           path: coverage/e2e/coverage-summary.json
@@ -94,7 +123,7 @@ jobs:
       contents: read
     steps:
       - name: Download coverage summary artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: e2e-coverage-summary
           path: coverage/e2e
@@ -105,7 +134,7 @@ jobs:
         run: |
           FILE="coverage/e2e/coverage-summary.json"
           if [ ! -f "$FILE" ]; then
-            echo "body=вљ пёЏ coverage-summary.json not found" >> $GITHUB_OUTPUT
+            echo "body=⚠️ coverage-summary.json not found" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -115,7 +144,7 @@ jobs:
           STMTS=$(node -e "const s=require('./$FILE').total; console.log(s.statements.pct)")
 
           BODY=$(cat <<EOF
-          ## рџ§Є API E2E Coverage
+          ## 🧪 API E2E Coverage
           - **Lines:** ${LINES}%
           - **Functions:** ${FUNCS}%
           - **Branches:** ${BRANCH}%
@@ -132,7 +161,11 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - name: Comment PR
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
+
+
+
+
