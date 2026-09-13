@@ -156,8 +156,6 @@ jobs:
           header: api-e2e-coverage
           message: ${{ steps.cov.outputs.body }}
 
-
-
       - name: Apply Prisma schema
         run: npx prisma db push
 
